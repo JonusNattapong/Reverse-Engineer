@@ -1,6 +1,6 @@
 {
   "name": "@jonusnattapong/codexray",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-powered codebase architecture and reverse engineering CLI",
   "repository": {
     "type": "git",
