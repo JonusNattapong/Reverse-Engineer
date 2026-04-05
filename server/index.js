@@ -274,9 +274,13 @@ function buildAnalysisPrompt({
        
        This blueprint must be structured so that a junior-to-mid-level developer AI can RECREATE the system with 95% accuracy.
        
+       CRITICAL RULES:
+       - DO NOT use ASCII box-drawing characters (┌, ─, │, ╔, ║) for flowcharts or architectures. They break terminal UI rendering.
+       - Use ONLY plain text, markdown bullet points, or standard code blocks (like \`\`\`mermaid) for diagrams.
+       
        FOLLOW THESE STEPS IN YOUR OUTPUT:
        1. EXECUTIVE SUMMARY: High-level purpose and business/technical goals.
-       2. ARCHITECTURAL OVERVIEW: Text-based description (or Mermaid-style) of component interactions and boundaries.
+       2. ARCHITECTURAL OVERVIEW: Text-based description or Mermaid-style diagram of component interactions.
        3. CORE ENTITIES & DATA MODELS: Key data structures, state shapes, and API schemas.
        4. KEY FUNCTIONALITY & LOGIC FLOW: Step-by-step processing pipelines for critical features.
        5. TECHNICAL DECISIONS & PATTERNS: Observed design patterns (e.g., Singleton, Factory, MVC) and framework constraints.
