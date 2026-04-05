@@ -1,7 +1,7 @@
 {
-  "name": "@jonusnattapong/reverse-engineer",
-  "version": "1.0.2",
-  "description": "GitHub path reverse engineering app with GitHub API and OpenAI integration",
+  "name": "@jonusnattapong/codexray",
+  "version": "1.0.0",
+  "description": "AI-powered codebase architecture and reverse engineering CLI",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JonusNattapong/Reverse-Engineer.git"
@@ -15,7 +15,7 @@
   "homepage": "https://github.com/JonusNattapong/Reverse-Engineer#readme",
   "main": "index.js",
   "bin": {
-    "reverse-engineer": "index.js"
+    "codexray": "index.js"
   },
   "scripts": {
     "start": "node index.js",
