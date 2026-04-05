@@ -37,6 +37,10 @@
 
 ## หน้าตาของระบบ (Interface Showcase)
 
+### 🤖 Agent Sandbox Mode (Live Demo)
+
+<video src="assets/V1.mp4" controls width="100%"></video>
+
 ### Web Dashboard
 
 ![Web Dashboard](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)

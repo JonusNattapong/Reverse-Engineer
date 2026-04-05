@@ -1,6 +1,7 @@
 const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
+const { SandboxAgent } = require("./agent");
 
 dotenv.config();
 
@@ -709,6 +710,40 @@ app.post("/api/analyze/stream", async (req, res) => {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    }
+});
+
+app.post("/api/agent/stream", async (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+        const payload = req.body || {};
+        
+        // Grab the exact provider they set as default!
+        const targetProvider = process.env.DEFAULT_PROVIDER || "kilocode";
+        const selected = resolveProvider(targetProvider);
+        const apiKey = process.env[`${selected.provider.toUpperCase()}_API_KEY`];
+        const baseUrl = selected.baseUrl || "https://api.openai.com/v1";
+        
+        // Boot up Sandbox with custom provider!
+        const agent = new SandboxAgent(apiKey, baseUrl, selected.model);
+        
+        await agent.run(
+            payload.url,
+            (logMsg) => {
+                res.write(`data: ${JSON.stringify({ log: logMsg })}\n\n`);
+            },
+            (content) => {
+                res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+            }
+        );
+        res.write(`data: [DONE]\n\n`);
+        res.end();
+    } catch (error) {
+        res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+        res.end();
     }
 });
 

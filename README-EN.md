@@ -38,6 +38,10 @@ REVERSE ENGINEER is a sophisticated engineering tool designed for analyzing and 
 
 ## Interface Showcase
 
+### 🤖 Agent Sandbox Mode (Live Demo)
+
+<video src="assets/bandicam%202026-04-06%2002-07-10-893.mp4" controls width="100%"></video>
+
 ### Web Dashboard
 
 ![Web Dashboard](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)

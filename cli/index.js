@@ -105,6 +105,9 @@ function parseArgs(argv) {
       case "--inspect-only":
         args.inspectOnly = true;
         break;
+      case "--agent":
+        args.isAgentMode = true;
+        break;
       case "--json":
         args.json = true;
         break;
@@ -480,14 +483,18 @@ async function promptForMissing(args, health = {}) {
       message: "What would you like to do?",
       choices: [
         {
-          name: `${figures.play || "▶"} Analyze a Repository`,
+          name: `[>] Analyze a Repository`,
           value: "analyze",
         },
         {
-          name: `${figures.settings || "⚙"} Configure API Keys / Models`,
+          name: `[A] Agent Sandbox Mode (Self-Exploring AI)`,
+          value: "agent",
+        },
+        {
+          name: `[*] Configure API Keys / Models`,
           value: "config",
         },
-        { name: `${figures.cross || "✖"} Exit`, value: "exit" },
+        { name: `[x] Exit`, value: "exit" },
       ],
     },
   ]);
@@ -510,14 +517,19 @@ async function promptForMissing(args, health = {}) {
 
   args.url = primaryAnswer.url;
 
+  if (choice === "agent") {
+    args.isAgentMode = true;
+    return args;
+  }
+
   const { mode } = await inquirer.prompt([
     {
       type: "list",
       name: "mode",
       message: "Proceed with defaults or customize?",
       choices: [
-        { name: `${figures.play} Just go! (Fast Track)`, value: "fast" },
-        { name: `${figures.settings} Customize options`, value: "custom" },
+        { name: `[>] Just go! (Fast Track)`, value: "fast" },
+        { name: `[*] Customize options`, value: "custom" },
       ],
       default: "fast",
     },
@@ -649,6 +661,64 @@ async function main() {
           `\n${figures.info} Inspect-only mode enabled. Execution finished at Phase 2.`,
         ),
       );
+      return;
+    }
+
+    if (finalArgs.isAgentMode) {
+      divider(3, "Autonomous Agent Sandbox Active", "magenta");
+      const agentSpinner = ora({
+        text: `Initializing AI Agent in secure temp sandbox...`,
+        color: "cyan",
+        spinner: "bouncingBar"
+      }).start();
+
+      let finalContent = "";
+      
+      const response = await fetch(`${finalArgs.baseUrl}/api/agent/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: finalArgs.url })
+      });
+
+      if (!response.ok) throw new Error(`Agent stream failed: ${response.status}`);
+
+      process.stdout.write("\n");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim().startsWith("data: ")) continue;
+          const dataStr = line.replace("data: ", "").trim();
+          if (dataStr === "[DONE]") { agentSpinner.succeed("Agent Sandbox Loop Complete."); continue; }
+          
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.log) {
+               console.log(chalk.gray(`   ${data.log}`));
+            }
+            if (data.chunk) {
+               if(finalContent === "") {
+                 console.log(chalk.magenta.bold(`\n${figures.star} --- ULTIMATE PROMPT GENERATED --- \n`));
+               }
+               finalContent += data.chunk;
+               process.stdout.write(chalk.greenBright(data.chunk));
+            }
+          } catch(e) {}
+        }
+      }
+      process.stdout.write("\n\n");
+      
+      divider(4, "Insight Delivery & Export", "green");
+      await handleOutputAction(finalContent, githubContext.metadata, serverHealth, githubContext);
       return;
     }
 

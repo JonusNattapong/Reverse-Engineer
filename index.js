@@ -15,9 +15,9 @@ async function main() {
       name: "mode",
       message: "How would you like to process your mission today?",
       choices: [
-        { name: "🌐 Web Dashboard - Focus on visual experience (Launches Server)", value: "web" },
-        { name: "💻 TUI Mode - Focus on terminal engineering (Server runs in Background)", value: "tui" },
-        { name: "✖ Exit", value: "exit" }
+        { name: "[W] Web Dashboard - Focus on visual experience (Launches Server)", value: "web" },
+        { name: "[T] TUI Mode - Focus on terminal engineering (Server runs in Background)", value: "tui" },
+        { name: "[x] Exit", value: "exit" }
       ],
     },
   ]);
