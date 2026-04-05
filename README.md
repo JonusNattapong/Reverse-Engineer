@@ -1,79 +1,96 @@
 # REVERSE ENGINEER
 
+![REVERSE ENGINEER - AI Repository Analysis](assets/title.png)
+
 > [!TIP]
 > [English Version here](README-EN.md)
 
-### สายลับขุดโค้ด GitHub ด้วย AI: วิเคราะห์โครงสร้าง, ถอดตรรกะ และเสกพิมพ์เขียว (Blueprint) ได้ในคลิกเดียว
+## ระบบวิเคราะห์และถอดรหัสโครงสร้าง GitHub Repository ด้วย AI
 
-**REVERSE ENGINEER** คือตัวช่วยสำหรับสาย Dev ที่อยากแกะโค้ดชาวบ้านมาศึกษา หรืออยากทำความเข้าใจโปรเจกต์ใหญ่ๆ บน GitHub ได้แบบพริ้วๆ โดยระบบจะดึงข้อมูลจริงจาก Repo มาให้ AI ช่วยวิเคราะห์ และสร้าง "พิมพ์เขียว (Blueprint)" ให้เราเอาไปสั่ง AI ตัวอื่นสร้างโค้ดตามได้ทันที
-
----
-
-## ทำอะไรได้บ้าง?
-
-### 🌐 Dashboard สวยๆ (Bento UI)
-- **Bento Layout**: หน้าตาเหมือนแอปสมัยใหม่ ดูข้อมูลทุกอย่างได้ในหน้าเดียว
-- **Cinematic Dark Mode**: ดีไซน์เท่ๆ แบบโปร ๆ พร้อม Log การทำงานที่วิ่งให้เห็นแบบสดๆ
-- **Markdown Ready**: ผลวิเคราะห์จาก AI ออกมาเป็น Format ที่อ่านง่าย ก๊อปไปใช้ต่อได้เลย
-- **Blueprint Mode**: เสก Prompt สถาปัตยกรรมระดับเทพ ให้ AI ตัวอื่น (เช่น Claude/GPT) รับช่วงต่อได้แม่นยำ
-
-### 💻 TUI สำหรับสาย Terminal
-- **4-Phase Flow**: ระบบงานแบบ Step-by-Step ตั้งแต่เช็คเครื่อง, ขุดโค้ด, วิเคราะห์ ไปจนถึงส่งออกผลลัพธ์
-- **Claude Aesthetics**: ธีมส้ม-ดำ สุดพรีเมียม พร้อมโลโก้ ASCII เท่ๆ ประดับ Terminal
-
-### 🎯 Blueprint Generation (ไม้ตาย)
-- โหมดนี้จะไม่ได้แค่สรุปโค้ด แต่จะพ่น "พิมพ์เขียวทางเทคนิค (Blueprint)" ที่ละเอียดถึงขั้นโครงสร้างข้อมูลและตรรกะการทำงาน
-- เหมาะสำหรับคนที่จะ "Clone" หรือ "Re-implement" ระบบใหม่ โดยใช้ AI ตัวอื่นช่วยเขียนโค้ดตามพิมพ์เขียวนี้
-
-### ⚡ Launcher ชุดเดียวจบ
-- รันแค่ `npm start` แล้วเลือกว่าจะใช้หน้าเว็บ หรือจะรัน TUI โดยที่ระบบจะแอบรัน Server ให้ในพื้นหลังเอง ไม่ต้องเปิดหลายจอ
+**REVERSE ENGINEER** เป็นเครื่องมือระดับวิศวกรรมสำหรับวิเคราะห์และทำความเข้าใจโครงสร้างซอฟต์แวร์ที่ซับซ้อน โดยการดึงบริบทจริงจาก GitHub และใช้โมเดล AI ขั้นสูงในการประมวลผลตรรกะ ระบุรูปแบบ (Patterns) และสร้างพิมพ์เขียวทางเทคนิค (Technical Blueprints) เพื่อเป็นรากฐานในการพัฒนาหรือติดตั้งระบบใหม่
 
 ---
 
-## เริ่มต้นใช้งาน
+## คุณสมบัติหลัก
 
-### 1. ลงของ (Install)
+### 1. Web Dashboard (Bento UI)
+
+- **Bento Interface**: การจัดวางข้อมูลแบบโมเดิร์นที่รวบรวมฟังก์ชันการทำงานไว้ในหน้าเดียว
+- **Cinematic Dark Mode**: ดีไซน์ระดับพรีเมียมที่ออกแบบมาเพื่อลดมลภาวะทางสายตาสำหรับการวิเคราะห์เชิงลึก
+- **Blueprint Mode**: ระบบสร้าง Technical Prompts สำหรับส่งต่อข้อมูลสถาปัตยกรรมไปยัง AI ตัวอื่นเพื่อการสร้างโค้ดที่มีความแม่นยำสูง
+
+### 2. Professional 4-Phase TUI
+
+- **Structured Workflow**: ระบบการทำงานแบบ 4 ขั้นตอน ตั้งแต่การตรวจสอบระบบ (Handshake), การสกัดข้อมูล (Extraction), การวิเคราะห์เชิงลึก (Synthesis) ไปจนถึงการส่งมอบข้อมูล (Delivery)
+- **Engineering Aesthetics**: ธีมระดับพรีเมียมที่ได้รับแรงบันดาลใจจาก Claude พร้อมโลโก้ ASCII สำหรับผู้ใช้งานผ่าน Terminal
+
+### 3. Blueprint Generation (The System Architect)
+
+- แตกต่างจากการสรุปโค้ดทั่วไป โหมดนี้ออกแบบมาเพื่อสร้าง "ข้อกำหนดทางเทคนิค (Technical Specification)" ที่ครอบคลุมทั้งโครงสร้างข้อมูล, ตรรกะสำคัญ และความสัมพันธ์ระหว่างโมดูล
+- เหมาะสำหรับการนำพิมพ์เขียวไปใช้ใน AI Coding Assistants เพื่อจำลองระบบหรือพัฒนาต่อยอด (Re-implementation)
+
+### 4. Unified Launcher
+
+- ระบบ Launcher ที่ช่วยใหเข้าถึงทั้ง Web Interface และ TUI Mode ได้ผ่านการควบคุมเดียว โดยระบบจะจัดการการทำงานของ Server ในพื้นหลังให้อัตโนมัติ
+
+---
+
+## หน้าตาของระบบ (Interface Showcase)
+
+| Web Dashboard | TUI Operation |
+| :---: | :---: |
+| ![REVERSE ENGINEER Web Interface](assets/start.png) | ![REVERSE ENGINEER TUI Phase](assets/step.png) |
+
+---
+
+## การเริ่มต้นใช้งาน
+
+### 1. การติดตั้ง (Installation)
+
 ```bash
 npm install
 ```
 
-### 2. ตั้งค่า API Key
-สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์หลัก แล้วใส่ Key ที่เรามี:
+### 2. การตั้งค่า Environment
+
+สร้างไฟล์ `.env` ที่ Root ของโครงการและระบุ API Keys:
+
 ```env
-OPENAI_API_KEY=ใส่เลขตรงนี้
-ANTHROPIC_API_KEY=ใส่เลขตรงนี้
-KILOCODE_API_KEY=ใส่เลขตรงนี้
-GITHUB_TOKEN=ใส่เพื่อขยายขีดจำกัดการดึงข้อมูล (แนะนำ)
+OPENAI_API_KEY=your_key_here
+ANTHROPIC_API_KEY=your_key_here
+KILOCODE_API_KEY=your_key_here
+GITHUB_TOKEN=recommended_for_higher_limits
 ```
 
-### 3. ลุยเลย!
+### 3. การรันระบบ
+
 ```bash
 npm start
 ```
 
 ---
 
-## สาย Advanced (ใช้คำสั่งตรง)
+## การใช้งานขั้นสูงผ่าน CLI
 
-ถ้าใครขี้เกียจกดเมนู ก็สั่งผ่าน CLI ได้เลย:
+สำหรับการรันคำสั่งโดยตรงผ่าน Terminal พร้อมพารามิเตอร์:
 
 ```bash
-# วิเคราะห์ทั้ง Repo แบบเสกพิมพ์เขียว (ภาษาไทย)
-npm run tui --url "link-github-ตรงนี้" --style blueprint --language Thai
+# วิเคราะห์ทั้ง Repository ในรูปแบบ Blueprint (ภาษาไทย)
+npm run tui --url "[github-url]" --style blueprint --language Thai
 
-# เจาะจงใช้ Claude วิเคราะห์ไฟล์เดียว
-npm run tui --url "link-github-ไฟล์ตรงนี้" --provider anthropic --model claude-3-5-sonnet-latest
+# เจาะจงวิเคราะห์ไฟล์ด้วย Anthropic Claude
+npm run tui --url "[github-file-url]" --provider anthropic --model claude-3-5-sonnet-latest
 ```
 
 ---
 
-## จัดโครงสร้างมาให้แบบหล่อๆ
+## โครงสร้างโครงการ
 
-- `/cli`: หัวใจของระบบ TUI
-- `/server`: ยานแม่ API Gateway ที่คอยขุดข้อมูล GitHub
-- `/public`: หน้าควบคุมผ่านหน้าเว็บ (Dashboard)
-- `index.js`: ตัว Launcher หลักของเรา
+- `/cli`: ตรรกะและอินเทอร์เฟซผู้ใช้งานผ่าน Terminal
+- `/server`: API Gateway และระบบการจัดการข้อมูลจาก GitHub
+- `/public`: ระบบแสดงผลหน้าเว็บ (Dashboard)
+- `index.js`: ระบบ Launcher หลัก
 
 ---
 
-© 2026 REVERSE ENGINEER | พัฒนามาเพื่อคนชอบขุดโค้ดและนักวิจัยระบบ (สายเผือกโค้ดชาวบ้าน)
+© 2026 REVERSE ENGINEER | Engineered for Architects and Security Researchers.

@@ -1,79 +1,97 @@
 # REVERSE ENGINEER
 
+![REVERSE ENGINEER - AI Repository Analysis](assets/title.png)
+
 > [!NOTE]
-> [Thai Version here](README.md)
+> [Thai Version here / ดูฉบับภาษาไทยที่นี่](README.md)
 
-### Analyze, Reverse, and Rebuild GitHub Projects using AI: Complete System Blueprints in One Click.
+## Advanced Repository Analysis & Technical Blueprinting Hub
 
-**REVERSE ENGINEER** is a developer's Swiss-Army knife for breaking down complex repositories. It extracts real context from GitHub then hands it over to elite AI models to map logic, resolve patterns, and generate "Implementation Blueprints" that other AI agents can use to recreate the codebase from scratch.
-
----
-
-## What can it do?
-
-### 🌐 High-Fidelity Dashboard
-- **Bento UI**: Everything is where it should be—just like a modern app.
-- **Cinematic Dark Mode**: A premium, noise-free environment for deep analysis.
-- **Markdown Native**: Clean, readable AI insights with full syntax highlighting.
-- **Blueprint Mode**: Zero-friction prompt generation for your favorite AI (Claude, GPT, etc.).
-
-### 💻 Pro-Grade TUI
-- **4-Phase Engine**: A structured workflow that guides you from "Checking Engine" to "Synthesis".
-- **Visual Feedback**: Real-time status updates and a sleek Claude-inspired theme.
-
-### 🎯 Blueprint Mode (The Secret Weapon)
-- Instead of just summaries, it spits out a developer-ready **Technical Blueprint**.
-- Everything from state shapes to processing flows is covered, allowing another AI to rebuild the system with near-perfect accuracy.
-
-### ⚡ Smart Launcher
-- Just run `npm start`. Choose your path—Web or TUI—and let the launcher handle the background server processes for you.
+REVERSE ENGINEER is a sophisticated engineering tool designed for analyzing and decomposing complex GitHub repositories. It extracts high-fidelity context from the source and leverages advanced AI models to map architectural patterns, resolve complex logic, and generate comprehensive implementation specifications.
 
 ---
 
-## Get Started
+## Core Capabilities
 
-### 1. Install
+### 1. High-Fidelity Dashboard
+
+- **Bento UI Architecture**: A cohesive dashboard that integrates visual analysis and operation logs in one view.
+- **Cinematic Workspace**: A premium environment designed for long-form technical research and code audit.
+- **Structural Integrity**: Native Markdown rendering for AI outputs with precise syntax highlighting.
+- **Blueprint Mode**: Sophisticated prompt generation specifically optimized for downstream AI development tasks.
+
+### 2. Professional 4-Phase TUI
+
+- **Systematic Workflow**: A dedicated 4-phase process covering Handshake, Extraction, Synthesis, and Delivery.
+- **Engineering Aesthetics**: Sophisticated, terminal-native aesthetics influenced by Anthropic's Claude interface.
+
+### 3. Blueprint Generation (The Architect System)
+
+- Beyond standard code summaries, it generates a full **Technical Implementation Specification**.
+- It provides a granular map of data structures, execution flows, and architectural boundaries, enabling other AI agents to recreate modules with high precision.
+
+### 4. Unified Launcher System
+
+- A single entry point for all operations. Run `npm start` to access either the Web Dashboard or the Terminal User Interface (TUI). Background server processes are handled automatically for seamless switching.
+
+---
+
+## Interface Showcase
+
+| Web Dashboard | TUI Operation |
+| :---: | :---: |
+| ![Web Interface](assets/start.png) | ![TUI Phase](assets/step.png) |
+
+---
+
+## Technical Setup
+
+### 1. Installation
+
 ```bash
 npm install
 ```
 
-### 2. Add Keys
-Create a `.env` file and add your secret sauce:
+### 2. Environment Configuration
+
+Create a `.env` file and populate the necessary authentication keys:
+
 ```env
-OPENAI_API_KEY=your_key
-ANTHROPIC_API_KEY=your_key
-KILOCODE_API_KEY=your_key
-GITHUB_TOKEN=recommended_for_api_limits
+OPENAI_API_KEY=your_key_here
+ANTHROPIC_API_KEY=your_key_here
+KILOCODE_API_KEY=your_key_here
+GITHUB_TOKEN=recommended_for_higher_limits
 ```
 
-### 3. Run
+### 3. Execution
+
 ```bash
 npm start
 ```
 
 ---
 
-## Deep Access (CLI Commands)
+## Headless CLI Operations
 
-For the ones who prefer command lines:
+Access direct terminal commands with the following syntax:
 
 ```bash
-# Analyze a full repo tree and generate a blueprint
-npm run tui --url "link-to-repo" --style blueprint --language Thai
+# Full repository analysis with blueprint output
+npm run tui --url "[github-url]" --style blueprint --language Thai
 
-# Target a specific file using Claude
-npm run tui --url "link-to-file" --provider anthropic --model claude-3-5-sonnet-latest
+# Focused file analysis using a specific AI provider
+npm run tui --url "[github-file-url]" --provider anthropic --model claude-3-5-sonnet-latest
 ```
 
 ---
 
-## Inside the Project
+## Project Architecture
 
-- `/cli`: The Terminal Interface heart.
-- `/server`: The API Gateway & GitHub mining engine.
-- `/public`: Web dashboard source code.
-- `index.js`: The Unified Launcher.
+- `/cli`: Professional Terminal User Interface implementation.
+- `/server`: High-performance API Gateway and GitHub mining engine.
+- `/public`: Static source for the web dashboard.
+- `index.js`: Unified launcher and system entry point.
 
 ---
 
-© 2026 REVERSE ENGINEER | Engineered for Architects & Code Explorers.
+© 2026 REVERSE ENGINEER | Engineered for Architects and Security Researchers.
