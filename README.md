@@ -37,9 +37,12 @@
 
 ## หน้าตาของระบบ (Interface Showcase)
 
-### 🤖 Agent Sandbox Mode (Live Demo)
+### Agent Sandbox Mode
 
-<video src="assets/V1.mp4" controls width="100%"></video>
+<video width="100%" controls autoplay loop>
+  <source src="https://github.com/JonusNattapong/Reverse-Engineer/raw/refs/heads/main/assets/V1.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ### Web Dashboard
 
