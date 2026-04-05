@@ -37,9 +37,17 @@
 
 ## หน้าตาของระบบ (Interface Showcase)
 
-| Web Dashboard | TUI Operation | Analysis Result |
-| :---: | :---: | :---: |
-| ![REVERSE ENGINEER Web Interface](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png) | ![REVERSE ENGINEER TUI Phase](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/step.png) | ![REVERSE ENGINEER Result](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/result.png) |
+### Web Dashboard
+
+![Web Dashboard](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)
+
+### TUI Operation
+
+![TUI Operation](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/step.png)
+
+### Analysis Result
+
+![Analysis Result](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/result.png)
 
 ---
 
