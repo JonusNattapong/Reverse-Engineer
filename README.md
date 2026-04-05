@@ -1,104 +1,79 @@
-# Reverse-Engineer
+# REVERSE ENGINEER
 
-เว็บสำหรับวางลิงก์ GitHub แล้วให้ระบบ:
+> [!TIP]
+> [English Version here](README-EN.md)
 
-- ดึง `tree` หรือ `file content` จริงจาก GitHub API
-- ส่ง context ที่ดึงได้เข้า AI provider ที่เลือก
-- คืนผลวิเคราะห์สำหรับ reverse engineering โค้ดและสถาปัตยกรรม
+### สายลับขุดโค้ด GitHub ด้วย AI: วิเคราะห์โครงสร้าง, ถอดตรรกะ และเสกพิมพ์เขียว (Blueprint) ได้ในคลิกเดียว
 
-## Setup
+**REVERSE ENGINEER** คือตัวช่วยสำหรับสาย Dev ที่อยากแกะโค้ดชาวบ้านมาศึกษา หรืออยากทำความเข้าใจโปรเจกต์ใหญ่ๆ บน GitHub ได้แบบพริ้วๆ โดยระบบจะดึงข้อมูลจริงจาก Repo มาให้ AI ช่วยวิเคราะห์ และสร้าง "พิมพ์เขียว (Blueprint)" ให้เราเอาไปสั่ง AI ตัวอื่นสร้างโค้ดตามได้ทันที
 
-1. ติดตั้ง dependencies
+---
 
+## ทำอะไรได้บ้าง?
+
+### 🌐 Dashboard สวยๆ (Bento UI)
+- **Bento Layout**: หน้าตาเหมือนแอปสมัยใหม่ ดูข้อมูลทุกอย่างได้ในหน้าเดียว
+- **Cinematic Dark Mode**: ดีไซน์เท่ๆ แบบโปร ๆ พร้อม Log การทำงานที่วิ่งให้เห็นแบบสดๆ
+- **Markdown Ready**: ผลวิเคราะห์จาก AI ออกมาเป็น Format ที่อ่านง่าย ก๊อปไปใช้ต่อได้เลย
+- **Blueprint Mode**: เสก Prompt สถาปัตยกรรมระดับเทพ ให้ AI ตัวอื่น (เช่น Claude/GPT) รับช่วงต่อได้แม่นยำ
+
+### 💻 TUI สำหรับสาย Terminal
+- **4-Phase Flow**: ระบบงานแบบ Step-by-Step ตั้งแต่เช็คเครื่อง, ขุดโค้ด, วิเคราะห์ ไปจนถึงส่งออกผลลัพธ์
+- **Claude Aesthetics**: ธีมส้ม-ดำ สุดพรีเมียม พร้อมโลโก้ ASCII เท่ๆ ประดับ Terminal
+
+### 🎯 Blueprint Generation (ไม้ตาย)
+- โหมดนี้จะไม่ได้แค่สรุปโค้ด แต่จะพ่น "พิมพ์เขียวทางเทคนิค (Blueprint)" ที่ละเอียดถึงขั้นโครงสร้างข้อมูลและตรรกะการทำงาน
+- เหมาะสำหรับคนที่จะ "Clone" หรือ "Re-implement" ระบบใหม่ โดยใช้ AI ตัวอื่นช่วยเขียนโค้ดตามพิมพ์เขียวนี้
+
+### ⚡ Launcher ชุดเดียวจบ
+- รันแค่ `npm start` แล้วเลือกว่าจะใช้หน้าเว็บ หรือจะรัน TUI โดยที่ระบบจะแอบรัน Server ให้ในพื้นหลังเอง ไม่ต้องเปิดหลายจอ
+
+---
+
+## เริ่มต้นใช้งาน
+
+### 1. ลงของ (Install)
 ```bash
 npm install
 ```
 
-2. สร้างไฟล์ `.env` จาก `.env.example`
-
-```bash
-cp .env.example .env
-```
-
-3. ใส่ค่า API key ตาม provider ที่ต้องการใช้
-
+### 2. ตั้งค่า API Key
+สร้างไฟล์ `.env` ไว้ที่โฟลเดอร์หลัก แล้วใส่ Key ที่เรามี:
 ```env
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-5.2
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-OPENROUTER_API_KEY=
-GROQ_API_KEY=
-XAI_API_KEY=
-MISTRAL_API_KEY=
-OLLAMA_BASE_URL=http://localhost:11434
-DEFAULT_PROVIDER=openai
-GITHUB_TOKEN=optional_github_token
-PORT=3000
+OPENAI_API_KEY=ใส่เลขตรงนี้
+ANTHROPIC_API_KEY=ใส่เลขตรงนี้
+KILOCODE_API_KEY=ใส่เลขตรงนี้
+GITHUB_TOKEN=ใส่เพื่อขยายขีดจำกัดการดึงข้อมูล (แนะนำ)
 ```
 
-4. รันเซิร์ฟเวอร์
-
+### 3. ลุยเลย!
 ```bash
 npm start
 ```
 
-5. เปิด `http://localhost:3000`
+---
 
-หรือใช้ผ่าน TUI:
+## สาย Advanced (ใช้คำสั่งตรง)
 
-```bash
-npm run tui
-```
-
-## วิธีใช้
-
-1. วางลิงก์ GitHub เช่น repo root, `tree`, หรือ `blob`
-2. ใส่เป้าหมายการวิเคราะห์
-3. กด `Inspect + Analyze`
-4. เลือก provider/model ที่ต้องการ
-5. ระบบจะดึง context จาก GitHub ก่อน แล้วค่อยส่งเข้า provider ที่เลือก
-
-## TUI
-
-ต้องรัน server ไว้ก่อน แล้วใช้ได้ 2 แบบ
-
-แบบ interactive:
+ถ้าใครขี้เกียจกดเมนู ก็สั่งผ่าน CLI ได้เลย:
 
 ```bash
-npm run tui
+# วิเคราะห์ทั้ง Repo แบบเสกพิมพ์เขียว (ภาษาไทย)
+npm run tui --url "link-github-ตรงนี้" --style blueprint --language Thai
+
+# เจาะจงใช้ Claude วิเคราะห์ไฟล์เดียว
+npm run tui --url "link-github-ไฟล์ตรงนี้" --provider anthropic --model claude-3-5-sonnet-latest
 ```
 
-แบบ command line:
+---
 
-```bash
-node cli.js --url "https://github.com/vercel/next.js/blob/canary/packages/next/src/server/app-render/app-render.tsx" --style deep --language Thai
-```
+## จัดโครงสร้างมาให้แบบหล่อๆ
 
-ระบุ provider/model:
+- `/cli`: หัวใจของระบบ TUI
+- `/server`: ยานแม่ API Gateway ที่คอยขุดข้อมูล GitHub
+- `/public`: หน้าควบคุมผ่านหน้าเว็บ (Dashboard)
+- `index.js`: ตัว Launcher หลักของเรา
 
-```bash
-node cli.js --url "https://github.com/vercel/next.js/blob/canary/packages/next/src/server/app-render/app-render.tsx" --provider anthropic --model claude-sonnet-4-20250514
-```
+---
 
-inspect อย่างเดียว:
-
-```bash
-node cli.js --url "https://github.com/vercel/next.js/tree/canary/packages/next/src/server/app-render" --inspect-only
-```
-
-## หมายเหตุ
-
-ตอนนี้รองรับ:
-
-- public repositories โดยไม่ต้องใส่ `GITHUB_TOKEN`
-- private repositories หรือ rate limit สูงขึ้นผ่าน `GITHUB_TOKEN`
-- file preview, tree preview, และ AI analysis ในหน้าเดียว
-- หลาย provider: `OpenAI`, `Anthropic`, `Gemini`, `OpenRouter`, `Groq`, `xAI`, `Mistral`, `Ollama`, `KiloCode`
-
-API ภายในที่มี:
-
-- `GET /api/health`
-- `GET /api/providers`
-- `GET /api/github/inspect?url=...`
-- `POST /api/analyze`
+© 2026 REVERSE ENGINEER | พัฒนามาเพื่อคนชอบขุดโค้ดและนักวิจัยระบบ (สายเผือกโค้ดชาวบ้าน)

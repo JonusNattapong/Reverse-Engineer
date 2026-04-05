@@ -11,7 +11,7 @@ const { stdin: input, stdout: output } = require("process");
 
 const DEFAULT_BASE_URL =
   process.env.REVERSE_ENGINEER_BASE_URL || "http://localhost:3000";
-const DEFAULT_STYLE = "summary";
+const DEFAULT_STYLE = "blueprint";
 const DEFAULT_LANGUAGE = "Thai";
 const DEFAULT_PROVIDER = process.env.DEFAULT_PROVIDER || "openai";
 
@@ -73,7 +73,6 @@ function parseArgs(argv) {
         args.url = next;
         index += 1;
         break;
-      // ... (rest of cases)
       case "--goal":
         args.goal = next;
         index += 1;
@@ -118,9 +117,11 @@ function parseArgs(argv) {
 }
 
 function printBanner() {
-  console.log(gradient.atlas.multiline(LOGO_TEXT));
+  const g = gradient.default || gradient;
+  const claudeOrange = g("#D97757", "#FCAB64", "#D97757");
+  console.log(claudeOrange.multiline(LOGO_TEXT));
   console.log(
-    chalk.cyan.bold(
+    chalk.hex("#D97757").bold(
       `   ${figures.star} Welcome to ${APP_NAME} ${figures.star}`,
     ),
   );
@@ -135,13 +136,13 @@ function printHelp() {
     boxen(
       chalk.white(`Usage:
   npm run tui
-  node cli.js --url <github-url> [options]
+  node cli/index.js --url <github-url> [options]
 
 Options:
   --goal <text>        Target analysis goal
   --provider <name>    AI Provider (openai, anthropic, etc.)
   --model <id>         AI Model ID (optional)
-  --style <style>      summary, deep, step-by-step, refactor
+  --style <style>      summary, deep, step-by-step, refactor, blueprint
   --language <lang>    Thai, English, Bilingual
   --inspect-only       Skip AI analysis
   --json               Output raw JSON
@@ -164,11 +165,22 @@ async function fetchJson(url, options) {
   return data;
 }
 
-function divider(title, color = "blue") {
-  const line = "─".repeat(process.stdout.columns - title.length - 8);
-  console.log(
-    chalk[color](`\n ${figures.pointer} ${chalk.bold(title)} ${line}\n`),
-  );
+function divider(step, title, color = "blue", total = 4) {
+  const stepText = chalk.bold(` [STEP ${step}/${total}] `);
+  const titleText = chalk[color].bold(` ${figures.pointerSmall} ${title} `);
+  const line = chalk.dim("─".repeat(Math.max(0, (process.stdout.columns || 80) - title.length - stepText.length - 15)));
+  console.log(`\n${chalk.bgCyan.black(stepText)}${titleText}${line}\n`);
+}
+
+function summaryBox(title, content, color = "cyan") {
+  console.log("\n" + boxen(chalk.white(content), {
+    title: chalk[color].bold(title),
+    titleAlignment: "left",
+    padding: { left: 1, right: 1, top: 0, bottom: 0 },
+    borderColor: color,
+    borderStyle: "round",
+    margin: { left: 2 }
+  }));
 }
 
 function renderMetadata(metadata) {
@@ -181,15 +193,7 @@ function renderMetadata(metadata) {
     `${chalk.cyan("URL")}     : ${chalk.blue.underline(metadata.url)}`,
   ].join("\n");
 
-  console.log(
-    boxen(content, {
-      title: "METADATA",
-      titleAlignment: "left",
-      padding: 1,
-      borderColor: "cyan",
-      borderStyle: "round",
-    }),
-  );
+  summaryBox("METADATA RECOVERY", content, "cyan");
 }
 
 function renderTree(tree) {
@@ -243,14 +247,13 @@ function renderFile(file) {
 }
 
 function renderAnalysis(analysis) {
-  divider("AI ANALYSIS RESULTS", "green");
   const content = analysis.text || "No analysis available";
   console.log(
     boxen(chalk.greenBright(content), {
       padding: 1,
       borderColor: "green",
       borderStyle: "double",
-      title: "INSIGHTS",
+      title: "AI ENGINEERING INSIGHTS",
       titleAlignment: "center",
     }),
   );
@@ -276,7 +279,6 @@ async function handleOutputAction(content, metadata, health) {
   ]);
 
   if (action === "copy") {
-    // Windows native clipboard command
     const proc = exec("clip");
     proc.stdin.write(content);
     proc.stdin.end();
@@ -359,7 +361,6 @@ async function configureProvider(health) {
 }
 
 async function promptForMissing(args, health = {}) {
-  // Turbo mode: If URL is already provided via argument, skip ALL prompts
   if (args.url) return args;
 
   printBanner();
@@ -387,7 +388,6 @@ async function promptForMissing(args, health = {}) {
 
   if (choice === "config") {
     await configureProvider(health);
-    // Restart prompt after config
     return promptForMissing(args, health);
   }
 
@@ -402,7 +402,6 @@ async function promptForMissing(args, health = {}) {
 
   args.url = primaryAnswer.url;
 
-  // Ask if they want to customize or just GO
   const { mode } = await inquirer.prompt([
     {
       type: "list",
@@ -417,14 +416,11 @@ async function promptForMissing(args, health = {}) {
   ]);
 
   if (mode === "fast") {
-    // Set default values if not provided
     args.outputStyle = args.outputStyle || DEFAULT_STYLE;
     args.language = args.language || DEFAULT_LANGUAGE;
-    // We will resolve the provider later using health info
     return args;
   }
 
-  // If customization requested, ask the rest
   const questions = [];
 
   if (!args.goal && !args.inspectOnly) {
@@ -440,7 +436,7 @@ async function promptForMissing(args, health = {}) {
       type: "list",
       name: "outputStyle",
       message: "Choose analysis style:",
-      choices: ["summary", "deep", "step-by-step", "refactor"],
+      choices: ["summary", "deep", "step-by-step", "refactor", "blueprint"],
       default: DEFAULT_STYLE,
     });
   }
@@ -476,13 +472,10 @@ async function main() {
     return;
   }
 
-  // Pre-fetch health to show in config
   let health = {};
   try {
     health = await fetchJson(`${args.baseUrl}/api/health`);
-  } catch (e) {
-    // server might be down, we'll catch later
-  }
+  } catch (e) {}
 
   const finalArgs = await promptForMissing(args, health);
 
@@ -491,34 +484,33 @@ async function main() {
     process.exit(1);
   }
 
-  const healthSpinner = ora("Checking server health...").start();
   try {
+    divider(1, "Handshake & Engine Check", "blue");
     const health = await fetchJson(`${finalArgs.baseUrl}/api/health`);
-    healthSpinner.succeed(chalk.green("Server is online"));
-
+    
     const serverInfo = [
       `${chalk.cyan("API Gateway")}   : ${chalk.white(finalArgs.baseUrl)}`,
-      `${chalk.cyan("OpenAI Ready")}  : ${health.hasOpenAIKey ? chalk.green("Yes") : chalk.red("No")}`,
-      `${chalk.cyan("GitHub Ready")}  : ${health.hasGitHubToken ? chalk.green("Yes") : chalk.red("No")}`,
-      `${chalk.cyan("Default Prov")}  : ${chalk.yellow(health.defaultProvider)}`,
+      `${chalk.cyan("AI Gateway")}    : ${health.ok ? chalk.green("CONNECTED") : chalk.red("DISCONNECTED")}`,
+      `${chalk.cyan("Active Prov")}   : ${chalk.yellow(health.defaultProvider)}`,
     ].join("\n");
 
     console.log(
       boxen(serverInfo, {
-        padding: 1,
+        padding: { left: 1, right: 1, top: 0, bottom: 0 },
         borderColor: "blue",
-        borderStyle: "bold",
-        title: "SERVER STATUS",
+        borderStyle: "round",
+        title: "SYSTEM STATUS",
       }),
     );
 
+    divider(2, "Deep Repository Extraction", "cyan");
     const inspectSpinner = ora(
-      `Inspecting repository: ${chalk.blue(finalArgs.url)}`,
+      `Mining data from: ${chalk.blue(finalArgs.url)}`,
     ).start();
     const githubContext = await fetchJson(
       `${finalArgs.baseUrl}/api/github/inspect?url=${encodeURIComponent(finalArgs.url)}`,
     );
-    inspectSpinner.succeed(chalk.green("Repository inspection completed"));
+    inspectSpinner.succeed(chalk.green("Data extraction complete."));
 
     if (finalArgs.json && finalArgs.inspectOnly) {
       console.log(JSON.stringify(githubContext, null, 2));
@@ -532,24 +524,20 @@ async function main() {
     if (finalArgs.inspectOnly) {
       console.log(
         chalk.yellow(
-          `\n${figures.info} Inspect-only mode enabled. Skipping AI analysis.`,
+          `\n${figures.info} Inspect-only mode enabled. Execution finished at Phase 2.`,
         ),
       );
       return;
     }
 
+    divider(3, "AI Synthesis & Pattern Analysis", "magenta");
     const analysisSpinner = ora({
-      text: "AI is analyzing code patterns... this might take a few seconds",
+      text: `Syncing with code-neural networks via ${chalk.bold(health.defaultProvider)}...`,
       color: "magenta",
     }).start();
 
-    // Resolve the best provider to use:
-    // 1. User specified via flag (finalArgs.provider)
-    // 2. Server's reported default (health.defaultProvider)
-    // 3. Fallback: First configured provider from the list
     let selectedProvider = finalArgs.provider || health.defaultProvider;
 
-    // Safety check: if selected is openai but no key, pick a configured one
     if (
       (!selectedProvider || selectedProvider === "openai") &&
       !health.hasOpenAIKey
@@ -575,22 +563,19 @@ async function main() {
         extraContext: finalArgs.extraContext || "",
       }),
     });
-    analysisSpinner.succeed(chalk.green("Analysis completed!"));
+    analysisSpinner.succeed(chalk.green("Intelligence synthesis complete."));
 
     if (finalArgs.json) {
       console.log(JSON.stringify({ githubContext, analysis }, null, 2));
       return;
     }
 
+    divider(4, "Insight Delivery & Export", "green");
     const finalContent = renderAnalysis(analysis);
     await handleOutputAction(finalContent, githubContext.metadata, health);
-    console.log(
-      chalk.cyan.bold(
-        `\n${figures.star} Done! Hope these insights help you build something amazing.`,
-      ),
-    );
+    
+    summaryBox("MISSION STATUS", `${figures.tick} REVERSE ENGINEERING SUCCESSFUL\n${figures.star} Insights ready for engineering team.`, "green");
   } catch (error) {
-    healthSpinner.stop();
     console.error(
       chalk.red(`\n${figures.warning} Critical Error: ${error.message}`),
     );

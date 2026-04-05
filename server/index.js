@@ -1,4 +1,4 @@
-const path = require("express/lib/router/index").path || require("path");
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 
@@ -48,7 +48,8 @@ const PROVIDER_DEFAULTS = {
 };
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(path.join(__dirname)));
+// Point to the public folder relative to this file
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 function parseGitHubUrl(input) {
   let url;
@@ -267,9 +268,27 @@ function buildAnalysisPrompt({
     ? `Repository README preview:\n${githubContext.readme.content}`
     : "No README preview attached.";
 
+  const baseInstruction = outputStyle === "blueprint" 
+    ? `You are a Senior Software Architect and Technical Documentation Expert specializing in high-fidelity system recreation. 
+       Your goal is to generate a COMPREHENSIVE IMPLEMENTATION BLUEPRINT based on the provided repository context.
+       
+       This blueprint must be structured so that a junior-to-mid-level developer AI can RECREATE the system with 95% accuracy.
+       
+       FOLLOW THESE STEPS IN YOUR OUTPUT:
+       1. EXECUTIVE SUMMARY: High-level purpose and business/technical goals.
+       2. ARCHITECTURAL OVERVIEW: Text-based description (or Mermaid-style) of component interactions and boundaries.
+       3. CORE ENTITIES & DATA MODELS: Key data structures, state shapes, and API schemas.
+       4. KEY FUNCTIONALITY & LOGIC FLOW: Step-by-step processing pipelines for critical features.
+       5. TECHNICAL DECISIONS & PATTERNS: Observed design patterns (e.g., Singleton, Factory, MVC) and framework constraints.
+       6. INTEGRATION & DEPENDENCIES: Critical external libraries, third-party APIs, and infrastructure needs.
+       7. ACTIONABLE IMPLEMENTATION PLAN: A prioritized, step-by-step guide for a Coder AI to build this system from scratch.
+       
+       START YOUR RESPONSE IMMEDIATELY WITH: 'Act as an expert developer. Based on the following system specification...'`
+    : `You are a senior software architect and reverse engineering assistant. Produce a: ${outputStyle || "summary"} in ${language || "Thai"}.`;
+
   return [
-    "You are a senior software architect and reverse engineering assistant.",
-    `Analyze the following GitHub target from real repository data.`,
+    baseInstruction,
+    `Analyze/Summarize the following GitHub target:`,
     `Target metadata:
 -- URL: ${target.url}
 -- Repository: ${target.owner}/${target.repo}
@@ -279,23 +298,22 @@ function buildAnalysisPrompt({
 -- Description: ${target.description || "N/A"}`,
     `Primary goal: ${
       goal ||
-      "ช่วย reverse engineer โค้ดใน path นี้ อธิบายหน้าที่ โครงสร้าง dependency จุดเชื่อมโยงสำคัญ และสิ่งที่ควรอ่านต่อ"
+      "ช่วย reverse engineer โค้ดในส่วนนี้เพื่อสร้างเป็นพิมพ์เขียวสำหรับพัฒนาต่อ"
     }`,
-    `Requested response style: ${outputStyle || "summary"}`,
     `Requested language: ${language || "Thai"}`,
     extraContext ? `Additional context: ${extraContext}` : "Additional context: none",
     `Repository tree preview:\n${treeText}`,
     fileText,
     readmeText,
-    `Please produce:
+    outputStyle === "blueprint" 
+      ? `FINAL OUTPUT FORMAT: A single, long, well-structured System Specification Prompt. Start immediately with 'Act as an expert developer...'`
+      : `Please produce:
 1. A concise overview of what this target does.
 2. Key modules, dependencies, or layers connected to it.
 3. Execution flow, inputs, outputs, and integration points.
 4. Risks, assumptions, hidden coupling, or code smells.
 5. What to inspect next for deeper reverse engineering.
-6. Actionable suggestions for documentation or refactoring if relevant.
-
-If the available context is incomplete, clearly separate observed facts from inference.`,
+6. Actionable suggestions for documentation or refactoring if relevant.`
   ].join("\n\n");
 }
 

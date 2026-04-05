@@ -2,12 +2,13 @@
   "name": "reverse-engineer",
   "version": "1.0.0",
   "description": "GitHub path reverse engineering app with GitHub API and OpenAI integration",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check script.js && node --check cli.js",
-    "tui": "node cli.js"
+    "start": "node index.js",
+    "web": "node server/index.js",
+    "tui": "node cli/index.js",
+    "dev": "node --watch server/index.js",
+    "check": "node --check server/index.js && node --check cli/index.js"
   },
   "keywords": [
     "github",
