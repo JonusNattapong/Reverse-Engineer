@@ -8,33 +8,24 @@ const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
 const { stdin: input, stdout: output } = require("process");
+const configManager = require("../lib/configManager");
+
+// Load persistent config into process.env on startup
+configManager.migrateFromDotEnv(path.join(__dirname, "..", ".env"));
+configManager.injectIntoProcessEnv();
 
 const DEFAULT_BASE_URL =
   process.env.REVERSE_ENGINEER_BASE_URL || "http://localhost:3000";
 const DEFAULT_STYLE = "blueprint";
 const DEFAULT_LANGUAGE = "Thai";
 const DEFAULT_PROVIDER = process.env.DEFAULT_PROVIDER || "openai";
-const DEFAULT_STREAMING = process.env.STREAMING_ENABLED !== "false"; // Default to true unless explicitly disabled
+const DEFAULT_STREAMING = process.env.STREAMING_ENABLED !== "false";
 
 function updateEnv(key, value) {
-  const envPath = path.join(__dirname, "..", ".env");
-  let content = fs.existsSync(envPath) ? fs.readFileSync(envPath, "utf8") : "";
-  const lines = content.split("\n");
-  let found = false;
-
-  const newLines = lines.map((line) => {
-    if (line.startsWith(`${key}=`)) {
-      found = true;
-      return `${key}=${value}`;
-    }
-    return line;
-  });
-
-  if (!found) {
-    newLines.push(`${key}=${value}`);
-  }
-
-  fs.writeFileSync(envPath, newLines.join("\n"), "utf8");
+  // Save to persistent config (survives npx runs)
+  configManager.set(key, value);
+  // Also inject into current process
+  process.env[key] = value;
 }
 
 const APP_NAME = "REVERSE ENGINEER CLI v1.0";
@@ -445,7 +436,7 @@ async function configureProvider(health) {
 
     if (apiKey) {
       updateEnv(keyName, apiKey);
-      console.log(chalk.green(`\n${figures.tick} API Key saved to .env!`));
+      console.log(chalk.green(`\n${figures.tick} API Key saved to ${configManager.getConfigPath()}`));
       p.configured = true;
     }
   }

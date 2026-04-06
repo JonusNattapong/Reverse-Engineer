@@ -2,7 +2,11 @@ const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const { SandboxAgent } = require("./agent");
+const configManager = require("../lib/configManager");
 
+// Load persistent config first, then let .env override
+configManager.migrateFromDotEnv(path.join(__dirname, "..", ".env"));
+configManager.injectIntoProcessEnv();
 dotenv.config();
 
 const app = express();
@@ -650,7 +654,8 @@ async function analyzeWithProvider(payload, onChunk = null) {
 }
 
 app.get("/api/health", (_req, res) => {
-  dotenv.config({ override: true }); // Force reload env changes
+  configManager.injectIntoProcessEnv(); // Reload persistent config
+  dotenv.config({ override: true }); // Then reload .env overrides
   const providers = getProviderCatalog();
   res.json({
     ok: true,
