@@ -1,58 +1,39 @@
 # REVERSE ENGINEER
 
-![REVERSE ENGINEER - AI Repository Analysis](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/title.png)
+![REVERSE ENGINEER - AI Repository Analysis](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/02_tui_main_menu.png)
 
 > [!NOTE]
 > [Thai Version here / ดูฉบับภาษาไทยที่นี่](README.md)
 
-## Advanced Repository Analysis & Technical Blueprinting Hub
+## Advanced Repository Analysis & Technical Blueprinting Hub (v1.1.0+)
 
-REVERSE ENGINEER is a sophisticated engineering tool designed for analyzing and decomposing complex GitHub repositories. It extracts high-fidelity context from the source and leverages advanced AI models to map architectural patterns, resolve complex logic, and generate comprehensive implementation specifications.
+**REVERSE ENGINEER (blueprompt)** is a sophisticated hybrid engineering tool designed for analyzing and decomposing complex GitHub repositories and live websites. It extracts high-fidelity context using **Playwright-driven browser simulation**, leverages advanced AI models to map architectural patterns, and generates comprehensive implementation specifications.
 
----
-
-## Core Capabilities
-
-### 1. High-Fidelity Dashboard
-
-- **Bento UI Architecture**: A cohesive dashboard that integrates visual analysis and operation logs in one view.
-- **Cinematic Workspace**: A premium environment designed for long-form technical research and code audit.
-- **Structural Integrity**: Native Markdown rendering for AI outputs with precise syntax highlighting.
-- **Blueprint Mode**: Sophisticated prompt generation specifically optimized for downstream AI development tasks.
-
-### 2. Professional 4-Phase TUI
-
-- **Systematic Workflow**: A dedicated 4-phase process covering Handshake, Extraction, Synthesis, and Delivery.
-- **Engineering Aesthetics**: Sophisticated, terminal-native aesthetics influenced by Anthropic's Claude interface.
-
-### 3. Blueprint Generation (The Architect System)
-
-- Beyond standard code summaries, it generates a full **Technical Implementation Specification**.
-- It provides a granular map of data structures, execution flows, and architectural boundaries, enabling other AI agents to recreate modules with high precision.
-
-### 4. Unified Launcher System
-
-- A single entry point for all operations. Run `npm start` to access either the Web Dashboard or the Terminal User Interface (TUI). Background server processes are handled automatically for seamless switching.
+### 🌟 New in v1.1.0: Hybrid Analysis Engine
+- **Browser Simulation (Playwright)**: The agent can now visit live URLs, render SPAs, and capture background XHR/Fetch API calls.
+- **Deep JS De-obfuscation**: Automatically beautifies minified JavaScript for more accurate AI reasoning.
+- **Enhanced Reliability**: Safe exit logic and sanitized file exports for cross-platform stability.
 
 ---
 
-## Interface Showcase
+## Technical Workflow (12-Step Journey)
 
-### 🤖 Agent Sandbox Mode (Live Demo)
+Experience the full depth of our engineering process:
 
-<video src="assets/bandicam%202026-04-06%2002-07-10-893.mp4" controls width="100%"></video>
-
-### Web Dashboard
-
-![Web Dashboard](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)
-
-### TUI Operation
-
-![TUI Operation](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/step.png)
-
-### Analysis Result
-
-![Analysis Result](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/result.png)
+| Phase | Description | Interface Preview |
+|-------|-------------|-------------------|
+| **01** | **Launcher & Operation Select**: Choose between Web Dashboard or TUI mode. | ![Step 01](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/01_launcher_menu.png) |
+| **02** | **TUI Command Center**: The main dashboard with cinematic CLI aesthetics. | ![Step 02](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/02_tui_main_menu.png) |
+| **03** | **AI Provider Intelligence**: Configure your preferred AI model (OpenAI, Claude, etc). | ![Step 03](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/03_provider_config.png) |
+| **04** | **Strategy Selection**: Choose from various analysis prompts (Blueprint/Security). | ![Step 04](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/04_prompt_selection.png) |
+| **05** | **Prompt Customization**: Deeply tune the system prompt for your specific target. | ![Step 05](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/05_prompt_editor.png) |
+| **06** | **Target Lockdown**: Lock in your workspace path and project target. | ![Step 06](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/06_workspace_setup.png) |
+| **07** | **Engine Handshake**: Verify API connectivity and AI readiness. | ![Step 07](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/07_handshake_status.png) |
+| **08** | **Deep Extraction**: Metadata mining and project tree reconstruction. | ![Step 08](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/08_extraction_phase.png) |
+| **09** | **Agent Sandbox Active**: AI agent performs live site inspection and logic audit. | ![Step 09](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/09_agent_sandbox.png) |
+| **10** | **Synthesis Complete**: The AI generates the ultimate system blueprint. | ![Step 10](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/10_synthesis_complete.png) |
+| **11** | **Multi-Format Export**: Securely save results in MD, Text, or JSON. | ![Step 11](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/11_delivery_export.png) |
+| **12** | **Engineering Insights**: The final blueprint, ready for implementation. | ![Step 12](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/12_blueprint_showcase.png) |
 
 ---
 
