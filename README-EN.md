@@ -16,24 +16,22 @@
 
 ---
 
-## Technical Workflow (12-Step Journey)
+## Step-by-Step Engineering Journey
 
-Experience the full depth of our engineering process:
+Experience the visual depth of our hybrid engineering process:
 
-| Phase | Description | Interface Preview |
-|-------|-------------|-------------------|
-| **01** | **Launcher & Operation Select**: Choose between Web Dashboard or TUI mode. | ![Step 01](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/01_launcher_menu.png) |
-| **02** | **TUI Command Center**: The main dashboard with cinematic CLI aesthetics. | ![Step 02](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/02_tui_main_menu.png) |
-| **03** | **AI Provider Intelligence**: Configure your preferred AI model (OpenAI, Claude, etc). | ![Step 03](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/03_provider_config.png) |
-| **04** | **Strategy Selection**: Choose from various analysis prompts (Blueprint/Security). | ![Step 04](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/04_prompt_selection.png) |
-| **05** | **Prompt Customization**: Deeply tune the system prompt for your specific target. | ![Step 05](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/05_prompt_editor.png) |
-| **06** | **Target Lockdown**: Lock in your workspace path and project target. | ![Step 06](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/06_workspace_setup.png) |
-| **07** | **Engine Handshake**: Verify API connectivity and AI readiness. | ![Step 07](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/07_handshake_status.png) |
-| **08** | **Deep Extraction**: Metadata mining and project tree reconstruction. | ![Step 08](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/08_extraction_phase.png) |
-| **09** | **Agent Sandbox Active**: AI agent performs live site inspection and logic audit. | ![Step 09](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/09_agent_sandbox.png) |
-| **10** | **Synthesis Complete**: The AI generates the ultimate system blueprint. | ![Step 10](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/10_synthesis_complete.png) |
-| **11** | **Multi-Format Export**: Securely save results in MD, Text, or JSON. | ![Step 11](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/11_delivery_export.png) |
-| **12** | **Engineering Insights**: The final blueprint, ready for implementation. | ![Step 12](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/12_blueprint_showcase.png) |
+![Step 01](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/01.png)
+![Step 02](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/02.png)
+![Step 03](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/03.png)
+![Step 04](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/04.png)
+![Step 05](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/05.png)
+![Step 06](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/06.png)
+![Step 07](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/07.png)
+![Step 08](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/08.png)
+![Step 09](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/09.png)
+![Step 10](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/10.png)
+![Step 11](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/11.png)
+![Step 12](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/12.png)
 
 ---
 
