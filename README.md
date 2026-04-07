@@ -45,19 +45,19 @@
 
 ### Agent Sandbox Mode
 
-[![Agent Sandbox Mode](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)](https://github.com/user-attachments/assets/31d25731-43c8-4251-837f-fa351d8e0a26)
+[![Agent Sandbox Mode](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/09_agent_sandbox.png)](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/09_agent_sandbox.png)
 
 ### Web Dashboard
 
-![Web Dashboard](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/start.png)
+![Launcher Menu](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/01_launcher_menu.png)
 
 ### TUI Operation
 
-![TUI Operation](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/step.png)
+![TUI Operation](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/08_extraction_phase.png)
 
 ### Analysis Result
 
-![Analysis Result](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/result.png)
+![Analysis Result](https://raw.githubusercontent.com/JonusNattapong/Reverse-Engineer/main/assets/12_blueprint_showcase.png)
 
 ---
 
