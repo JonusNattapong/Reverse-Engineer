@@ -795,6 +795,10 @@ app.post("/api/agent/stream", async (req, res) => {
             (content) => {
                 res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
                 if (res.flush) res.flush();
+          },
+          (draftUpdate) => {
+            res.write(`data: ${JSON.stringify({ draft: draftUpdate })}\n\n`);
+            if (res.flush) res.flush();
             }
         );
         res.write(`data: [DONE]\n\n`);

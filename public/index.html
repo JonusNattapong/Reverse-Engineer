@@ -92,10 +92,16 @@
                         <textarea id="extra-context" rows="3" placeholder="Add specific files or folders to focus on..."></textarea>
                     </div>
 
-                    <button id="analyze-btn" class="btn-primary">
-                        <span class="btn-text">Execute Deep Analysis</span>
-                        <i class="fas fa-shipping-fast btn-icon"></i>
-                    </button>
+                    <div class="action-row">
+                        <button id="analyze-btn" class="btn-primary">
+                            <span class="btn-text">Execute Deep Analysis</span>
+                            <i class="fas fa-shipping-fast btn-icon"></i>
+                        </button>
+                        <button id="agent-btn" class="btn-secondary">
+                            <span class="btn-text">Run Agent Sandbox</span>
+                            <i class="fas fa-brain btn-icon"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -145,6 +151,22 @@
                     </header>
                     <div class="code-viewer">
                         <textarea id="context-output" readonly placeholder="Target repository structure will appear here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="glass-card bento-draft">
+                    <header class="card-header">
+                        <div class="title-with-icon">
+                            <i class="fas fa-pen-to-square insight-icon"></i>
+                            <h2>Live Result Draft</h2>
+                        </div>
+                        <div class="card-header-actions">
+                            <span id="draft-status" class="draft-status">Idle</span>
+                            <button class="btn-icon" id="copy-draft-btn" title="Copy Draft"><i class="far fa-copy"></i></button>
+                        </div>
+                    </header>
+                    <div class="code-viewer draft-viewer">
+                        <textarea id="draft-output" readonly placeholder="Agent sandbox draft will stream here as it evolves..."></textarea>
                     </div>
                 </div>
 

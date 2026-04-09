@@ -30,7 +30,7 @@ function updateEnv(key, value) {
   process.env[key] = value;
 }
 
-const APP_NAME = "REVERSE ENGINEER CLI v1.1.5";
+const APP_NAME = "REVERSE ENGINEER CLI v1.1.6";
 const LOGO_TEXT = `
 ██████╗ ███████╗██╗   ██╗███████╗██████╗ ███████╗███████╗
 ██╔══██╗██╔════╝██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝
@@ -805,6 +805,7 @@ async function main() {
       global.currentSpinner = agentSpinner;
 
       let finalAnalysisResult = "";
+      let latestDraft = "";
       
       const response = await fetch(`${finalArgs.baseUrl}/api/agent/stream`, {
         method: "POST",
@@ -833,6 +834,33 @@ async function main() {
             if (data.log) {
                console.log(chalk.gray(`   ${figures.pointerSmall} ${data.log}`));
             }
+            if (data.draft) {
+               latestDraft = data.draft.content || latestDraft;
+               const actionColor = data.draft.action === "replace"
+                 ? chalk.yellow
+                 : data.draft.action === "append"
+                 ? chalk.cyan
+                 : data.draft.action === "finalize"
+                 ? chalk.green
+                 : chalk.gray;
+               const headline = `${data.draft.action || "draft"}`.toUpperCase();
+               console.log(actionColor(`   ${figures.pointerSmall} [DRAFT ${headline}] ${data.draft.deltaLength || data.draft.newLength || 0} chars`));
+
+               const previewSource = data.draft.newPreview || data.draft.delta || data.draft.preview || "";
+               if (previewSource) {
+                 const previewLines = String(previewSource)
+                   .split("\n")
+                   .slice(0, 6)
+                   .map((line) => `     ${chalk.dim(line)}`)
+                   .join("\n");
+                 if (previewLines) {
+                   console.log(previewLines);
+                 }
+               }
+               if (data.draft.note) {
+                 console.log(chalk.gray(`     ${data.draft.note}`));
+               }
+            }
             if (data.chunk) {
                if(finalAnalysisResult === "") {
                  agentSpinner.stop(); 
@@ -851,6 +879,9 @@ async function main() {
         parser.feed(decoder.decode(value, { stream: true }));
       }
       process.stdout.write("\n\n");
+      if (!finalAnalysisResult && latestDraft) {
+        finalAnalysisResult = latestDraft;
+      }
       
       divider(4, "Insight Delivery & Export", "green");
       await handleOutputAction(finalAnalysisResult, githubContext.metadata, serverHealth, githubContext);

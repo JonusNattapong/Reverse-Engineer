@@ -7,6 +7,7 @@ const languageInput = document.getElementById("language");
 const goalInput = document.getElementById("goal");
 const extraContextInput = document.getElementById("extra-context");
 const analyzeBtn = document.getElementById("analyze-btn");
+const agentBtn = document.getElementById("agent-btn");
 const statusLog = document.getElementById("status-log");
 const exportDropdown = document.getElementById("export-dropdown");
 const serverStatusCell = document.getElementById("server-health");
@@ -17,10 +18,13 @@ const metaType = document.getElementById("meta-type");
 const metaPath = document.getElementById("meta-path");
 
 const contextOutput = document.getElementById("context-output");
+const draftOutput = document.getElementById("draft-output");
+const draftStatus = document.getElementById("draft-status");
 const analysisOutput = document.getElementById("analysis-output");
 
 const copyMetaBtn = document.getElementById("copy-meta-btn");
 const copyContextBtn = document.getElementById("copy-context-btn");
+const copyDraftBtn = document.getElementById("copy-draft-btn");
 const copyAnalysisBtn = document.getElementById("copy-analysis-btn");
 
 // Initialization
@@ -72,12 +76,46 @@ function addLog(message, type = "system") {
   statusLog.prepend(entry);
 }
 
+function renderMarkdownOutput(element, text) {
+  element.dataset.raw = text;
+  element.innerHTML = marked.parse(text || "");
+  const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+  if (isNearBottom) {
+    element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
+  }
+}
+
+function setDraftStatus(label, state = "") {
+  if (!draftStatus) return;
+  draftStatus.textContent = label;
+  draftStatus.className = "draft-status";
+  if (state) {
+    draftStatus.classList.add(state);
+  }
+}
+
+function resetOutputs() {
+  analysisOutput.innerHTML = '<p class="placeholder-text">Waiting for AI synthesis...</p>';
+  analysisOutput.dataset.raw = "";
+  draftOutput.value = "";
+  draftOutput.dataset.raw = "";
+  if (exportDropdown) {
+    exportDropdown.classList.remove("visible");
+  }
+  setDraftStatus("Idle");
+}
+
+function setBusyState(isBusy, modeLabel) {
+  analyzeBtn.disabled = isBusy;
+  agentBtn.disabled = isBusy;
+  analyzeBtn.querySelector(".btn-text").textContent = isBusy ? `Running ${modeLabel}...` : "Execute Deep Analysis";
+  agentBtn.querySelector(".btn-text").textContent = isBusy ? `Running ${modeLabel}...` : "Run Agent Sandbox";
+}
+
 async function analyzeGitHubContext(githubContext) {
   const provider = providerInput.value;
   addLog(`Requesting synthesis from ${provider} (STREAMING)...`, "loading");
-  
-  analysisOutput.innerHTML = "";
-  analysisOutput.dataset.raw = "";
+  resetOutputs();
 
   try {
     const response = await fetch("/api/analyze/stream", {
@@ -99,6 +137,7 @@ async function analyzeGitHubContext(githubContext) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullText = "";
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
@@ -123,19 +162,7 @@ async function analyzeGitHubContext(githubContext) {
             if (data.error) throw new Error(data.error);
             if (data.chunk) {
               fullText += data.chunk;
-              analysisOutput.dataset.raw = fullText;
-              
-              // Render markdown live
-              analysisOutput.innerHTML = marked.parse(fullText);
-              
-              // Smart Auto-scroll: Only scroll if user is near bottom
-              const isNearBottom = analysisOutput.scrollHeight - analysisOutput.scrollTop - analysisOutput.clientHeight < 100;
-              if (isNearBottom) {
-                analysisOutput.scrollTo({
-                  top: analysisOutput.scrollHeight,
-                  behavior: "smooth"
-                });
-              }
+              renderMarkdownOutput(analysisOutput, fullText);
             }
           } catch (e) {
             if (dataStr !== "[DONE]") console.error("Parse error", e);
@@ -149,9 +176,92 @@ async function analyzeGitHubContext(githubContext) {
   }
 }
 
+async function runAgentSandbox(targetUrl) {
+  addLog(`Starting autonomous agent sandbox for ${targetUrl}...`, "loading");
+  resetOutputs();
+  setDraftStatus("Booting", "reset");
+
+  const response = await fetch("/api/agent/stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: targetUrl }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Agent stream failed: ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalText = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data: ")) continue;
+
+      const dataStr = trimmed.replace("data: ", "").trim();
+      if (dataStr === "[DONE]") {
+        addLog("Agent sandbox completed", "success");
+        if (exportDropdown) exportDropdown.classList.add("visible");
+        continue;
+      }
+
+      const data = JSON.parse(dataStr);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.log) {
+        addLog(data.log, "system");
+      }
+
+      if (data.draft) {
+        draftOutput.value = data.draft.content || "";
+        draftOutput.dataset.raw = data.draft.content || "";
+        draftOutput.scrollTop = draftOutput.scrollHeight;
+
+        const statusLabel = data.draft.action
+          ? `${data.draft.action.toUpperCase()} ${data.draft.deltaLength || data.draft.newLength || ""}`.trim()
+          : "Updating";
+        setDraftStatus(statusLabel, data.draft.action || "");
+
+        if (data.draft.action === "append") {
+          addLog(`Draft append: ${data.draft.deltaLength || 0} chars`, "success");
+        } else if (data.draft.action === "replace") {
+          addLog(`Draft replace: ${data.draft.oldLength || 0} -> ${data.draft.newLength || 0} chars`, "success");
+        } else if (data.draft.action === "finalize") {
+          addLog("Draft finalized and synchronized", "success");
+        }
+
+        if (data.draft.note) {
+          addLog(data.draft.note, "system");
+        }
+      }
+
+      if (data.chunk) {
+        finalText += data.chunk;
+        renderMarkdownOutput(analysisOutput, finalText);
+      }
+    }
+  }
+
+  if (!finalText && draftOutput.dataset.raw) {
+    renderMarkdownOutput(analysisOutput, draftOutput.dataset.raw);
+  }
+}
+
 let isAnalyzing = false;
 
-async function analyze() {
+async function analyze(mode = "standard") {
   if (isAnalyzing) return;
 
   const url = repoUrlInput.value.trim();
@@ -161,8 +271,7 @@ async function analyze() {
   }
 
   isAnalyzing = true;
-  analyzeBtn.disabled = true;
-  analyzeBtn.querySelector(".btn-text").textContent = "Analyzing...";
+  setBusyState(true, mode === "agent" ? "Agent Sandbox" : "Deep Analysis");
   addLog(`Initiating data extraction for ${url}...`, "loading");
 
   try {
@@ -187,15 +296,17 @@ async function analyze() {
     });
     contextOutput.value = contextText;
 
-    // Proceed to AI analysis
-    await analyzeGitHubContext(githubContext);
+    if (mode === "agent") {
+      await runAgentSandbox(url);
+    } else {
+      await analyzeGitHubContext(githubContext);
+    }
 
   } catch (error) {
     addLog(`Error: ${error.message}`, "error");
   } finally {
     isAnalyzing = false;
-    analyzeBtn.disabled = false;
-    analyzeBtn.querySelector(".btn-text").textContent = "Execute Deep Analysis";
+    setBusyState(false, mode === "agent" ? "Agent Sandbox" : "Deep Analysis");
   }
 }
 
@@ -353,13 +464,15 @@ document.addEventListener("click", () => {
 });
 
 // Listeners
-analyzeBtn.addEventListener("click", analyze);
+analyzeBtn.addEventListener("click", () => analyze("standard"));
+agentBtn.addEventListener("click", () => analyze("agent"));
 
 repoUrlInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") analyze();
+  if (e.key === "Enter") analyze("standard");
 });
 
 copyContextBtn.addEventListener("click", () => copyText(contextOutput.value, copyContextBtn));
+copyDraftBtn.addEventListener("click", () => copyText(draftOutput.dataset.raw || draftOutput.value || "", copyDraftBtn));
 copyAnalysisBtn.addEventListener("click", () => copyText(analysisOutput.dataset.raw || "", copyAnalysisBtn));
 copyMetaBtn.addEventListener("click", () => {
   const text = `Repo: ${metaRepo.textContent}\nBranch: ${metaBranch.textContent}\nType: ${metaType.textContent}\nPath: ${metaPath.textContent}`;

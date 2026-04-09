@@ -9,6 +9,145 @@ const TurndownService = require("turndown");
 const { chromium } = require("playwright");
 const beautify = require("js-beautify").js;
 const turndown = new TurndownService();
+const RESULT_DRAFT_FILENAME = "ANALYSIS_RESULT_DRAFT.md";
+const BLUEPRINT_PROMPT_FILENAME = "BLUEPRINT_PROMPT.md";
+const LEGACY_BLUEPRINT_FILENAME = "SYSTEM_BLUEPRINT.md";
+const DRAFT_REREAD_INTERVAL = 4;
+
+function buildDraftTemplate(target, mode) {
+  return [
+    `# Analysis Draft`,
+    ``,
+    `## Target`,
+    `- Input: ${target}`,
+    `- Mode: ${mode}`,
+    `- Status: In Progress`,
+    ``,
+    `## Architecture`,
+    `### Facts`,
+    `- Pending evidence collection.`,
+    ``,
+    `### Hypotheses`,
+    `- None yet.`,
+    ``,
+    `## Data Flow`,
+    `### Facts`,
+    `- Pending evidence collection.`,
+    ``,
+    `### Hypotheses`,
+    `- None yet.`,
+    ``,
+    `## Key Files`,
+    `### Facts`,
+    `- Pending evidence collection.`,
+    ``,
+    `### Hypotheses`,
+    `- None yet.`,
+    ``,
+    `## Open Questions`,
+    `- What is still unclear?`,
+    ``,
+    `## Gaps To Investigate Next`,
+    `- Add the next concrete inspection targets here.`,
+    ``,
+    `## Final Synthesis`,
+    `### Facts`,
+    `- Not ready.`,
+    ``,
+    `### Hypotheses`,
+    `- Not ready.`,
+    ``,
+  ].join("\n");
+}
+
+function buildCheckpointPrompt(draftContent) {
+  return [
+    `CHECKPOINT REREAD REQUIRED.`,
+    `Read the current draft below as working memory before you continue.`,
+    `1. Identify weak sections or placeholders that still lack evidence.`,
+    `2. Update 'Gaps To Investigate Next' with the next concrete inspection targets.`,
+    `3. Keep Facts and Hypotheses separate. Facts require direct evidence from files, commands, or rendered output.`,
+    `4. Do not continue blind exploration until the draft reflects what is known vs uncertain.`,
+    ``,
+    `CURRENT DRAFT:`,
+    draftContent,
+  ].join("\n");
+}
+
+function buildBlueprintSynthesisPrompt(draftContent, target, mode) {
+  return [
+    `FINAL ROUND. Convert the analysis draft into a prompt-ready blueprint.`,
+    `Do NOT return the draft verbatim. Rewrite it into a polished system recreation prompt for another coding model.`,
+    `Target: ${target}`,
+    `Mode: ${mode}`,
+    ``,
+    `OUTPUT REQUIREMENTS:`,
+    `1. Start exactly with: 'Act as an expert developer. Based on the following system specification...'`,
+    `2. Output a single prompt-ready blueprint artifact, not notes, not commentary, not a changelog.`,
+    `3. Use the draft as source material, but remove draft markers like 'Facts', 'Hypotheses', 'Open Questions' unless they are rewritten into polished sections.`,
+    `4. Preserve uncertainty honestly: if something remains uncertain, label it as hypothesis or missing context within the blueprint.`,
+    `5. Include architecture, data flow, key files/components, integration points, constraints, and an implementation plan.`,
+    `6. Optimize for another coding model to recreate the system with high fidelity.`,
+    ``,
+    `SOURCE DRAFT:`,
+    draftContent,
+  ].join("\n");
+}
+
+function markDraftComplete(draftContent) {
+  return String(draftContent || "").replace("- Status: In Progress", "- Status: Complete");
+}
+
+function readResultDraft(resultPath) {
+  if (!fs.existsSync(resultPath)) {
+    return "";
+  }
+
+  return fs.readFileSync(resultPath, "utf8");
+}
+
+function previewText(text, limit = 4000) {
+  if (!text) {
+    return "";
+  }
+
+  if (text.length <= limit) {
+    return text;
+  }
+
+  return `${text.slice(0, limit)}\n\n...[truncated ${text.length - limit} chars]`;
+}
+
+function writeResultDraft(resultPath, content, mode = "append") {
+  const nextContent = mode === "replace"
+    ? String(content || "")
+    : `${readResultDraft(resultPath)}${content || ""}`;
+
+  fs.writeFileSync(resultPath, nextContent, "utf8");
+  return nextContent;
+}
+
+function replaceInResultDraft(resultPath, oldText, newText) {
+  const current = readResultDraft(resultPath);
+  const source = String(oldText || "");
+
+  if (!source) {
+    throw new Error("oldText is required");
+  }
+
+  const firstIndex = current.indexOf(source);
+  if (firstIndex === -1) {
+    throw new Error("Target text not found in result draft");
+  }
+
+  if (current.indexOf(source, firstIndex + source.length) !== -1) {
+    throw new Error("Target text appears multiple times. Read the draft and replace with a more specific block.");
+  }
+
+  const nextContent = current.replace(source, String(newText || ""));
+  fs.writeFileSync(resultPath, nextContent, "utf8");
+  return nextContent;
+}
 
 const TOOLS = [
   {
@@ -61,6 +200,47 @@ const TOOLS = [
         required: ["command"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "read_result",
+      description: "Read the accumulated analysis result draft. Use this before editing existing sections.",
+      parameters: {
+        type: "object",
+        properties: {},
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "write_result",
+      description: "Write analysis findings into the accumulated result draft. Use append for new notes and replace to rewrite the whole draft.",
+      parameters: {
+        type: "object",
+        properties: {
+          content: { type: "string" },
+          mode: { type: "string", enum: ["append", "replace"] }
+        },
+        required: ["content"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "replace_result",
+      description: "Replace a specific unique block inside the accumulated result draft.",
+      parameters: {
+        type: "object",
+        properties: {
+          oldText: { type: "string" },
+          newText: { type: "string" }
+        },
+        required: ["oldText", "newText"]
+      }
+    }
   }
 ];
 
@@ -72,7 +252,7 @@ class SandboxAgent {
     this.messages = [];
   }
 
-  async run(url, onLog, onChunk) {
+  async run(url, onLog, onChunk, onDraftUpdate) {
     const debugLog = (msg) => {
         try {
             const logLine = `[${new Date().toISOString()}] ${msg}\n`;
@@ -123,18 +303,44 @@ class SandboxAgent {
         if (!fs.existsSync(cloneDir)) fs.mkdirSync(cloneDir, { recursive: true });
       }
 
-      const blueprintPath = path.join(cloneDir, "SYSTEM_BLUEPRINT.md");
+      const blueprintPath = path.join(cloneDir, BLUEPRINT_PROMPT_FILENAME);
+      const legacyBlueprintPath = path.join(cloneDir, LEGACY_BLUEPRINT_FILENAME);
+      const resultDraftPath = path.join(cloneDir, RESULT_DRAFT_FILENAME);
+      const initialDraft = buildDraftTemplate(url, mode.toUpperCase());
+      fs.writeFileSync(resultDraftPath, initialDraft, "utf8");
+      const emitDraftUpdate = (action, content, extra = {}) => {
+        if (typeof onDraftUpdate !== "function") {
+          return;
+        }
+
+        onDraftUpdate({
+          action,
+          content,
+          preview: previewText(content, 1200),
+          path: resultDraftPath,
+          updatedAt: new Date().toISOString(),
+          ...extra,
+        });
+      };
+
+      emitDraftUpdate("reset", initialDraft, { note: "Draft initialized from structured template" });
       let existingKnowledge = "";
-      if (fs.existsSync(blueprintPath)) {
+      const existingBlueprintPath = fs.existsSync(blueprintPath)
+        ? blueprintPath
+        : fs.existsSync(legacyBlueprintPath)
+        ? legacyBlueprintPath
+        : null;
+      if (existingBlueprintPath) {
           try {
-              const blueprint = fs.readFileSync(blueprintPath, "utf8");
+              const blueprint = fs.readFileSync(existingBlueprintPath, "utf8");
               existingKnowledge = `\n\n### PREVIOUS ARCHITECTURAL KNOWLEDGE:\n${blueprint}\n\n`;
           } catch(e) {}
       }
+      debugLog(`[Memory] Result draft initialized: ${resultDraftPath}`);
 
       this.messages.push({
         role: "system",
-        content: promptManager.getPrompt("agent") + existingKnowledge + `\n\nENVIRONMENT: ${mode.toUpperCase()}. You are an expert code architect. If Web Mode is active, focus on discovering API endpoints, React bundle logic, and rendering patterns.`
+        content: promptManager.getPrompt("agent") + existingKnowledge + `\n\nENVIRONMENT: ${mode.toUpperCase()}. You are an expert code architect. If Web Mode is active, focus on discovering API endpoints, React bundle logic, and rendering patterns.\nRESULT DRAFT FILE: ${RESULT_DRAFT_FILENAME}. Persist findings into it as you work; do not rely on memory alone.`
       });
       
       this.messages.push({ role: "user", content: `Target: ${url}. Begin deep analysis.` });
@@ -149,9 +355,23 @@ class SandboxAgent {
       while (!done && turnCount < MAX_TURNS) {
         turnCount++;
         const endpoint = this.baseUrl.endsWith("/chat/completions") ? this.baseUrl : `${this.baseUrl}/chat/completions`;
+        if (turnCount > 1 && turnCount < MAX_TURNS && turnCount % DRAFT_REREAD_INTERVAL === 0) {
+           const checkpointDraft = readResultDraft(resultDraftPath).trim() || initialDraft;
+           this.messages.push({
+             role: "user",
+             content: buildCheckpointPrompt(checkpointDraft),
+           });
+           debugLog(`[Checkpoint] Draft reread injected at turn ${turnCount}.`);
+        }
         
         if (turnCount === MAX_TURNS) {
-           this.messages.push({ role: "user", content: "FINAL ROUND. Synthesize all findings now." });
+           const draftSnapshot = markDraftComplete(readResultDraft(resultDraftPath).trim() || initialDraft);
+           fs.writeFileSync(resultDraftPath, draftSnapshot, "utf8");
+           emitDraftUpdate("finalize", draftSnapshot, { note: "Draft locked as complete before blueprint synthesis" });
+           this.messages.push({
+             role: "user",
+             content: buildBlueprintSynthesisPrompt(draftSnapshot || "(empty)", url, mode.toUpperCase())
+           });
         }
 
         const body = {
@@ -254,6 +474,28 @@ class SandboxAgent {
                } else if (name === "run_command" && mode === "repo") {
                    debugLog(`[Tool] <CMD> ${args.command}`);
                    result = execSync(args.command, { cwd: cloneDir, encoding: "utf-8", timeout: 45000 }).slice(0, 8000);
+                 } else if (name === "read_result") {
+                   result = readResultDraft(resultDraftPath) || "(empty result draft)";
+                   debugLog(`[Tool] <read_result>`);
+                 } else if (name === "write_result") {
+                   const writeMode = args.mode === "replace" ? "replace" : "append";
+                   const nextContent = writeResultDraft(resultDraftPath, args.content || "", writeMode);
+                   result = `Result draft updated with mode=${writeMode}.\n\n${previewText(nextContent)}`;
+                   debugLog(`[Tool] <write_result:${writeMode}> ${(args.content || "").length} chars`);
+                     emitDraftUpdate(writeMode, nextContent, {
+                       delta: previewText(String(args.content || ""), 500),
+                       deltaLength: String(args.content || "").length,
+                     });
+                 } else if (name === "replace_result") {
+                   const nextContent = replaceInResultDraft(resultDraftPath, args.oldText, args.newText);
+                   result = `Result draft replaced successfully.\n\n${previewText(nextContent)}`;
+                   debugLog(`[Tool] <replace_result> ${String(args.oldText || "").length} -> ${String(args.newText || "").length} chars`);
+                     emitDraftUpdate("replace", nextContent, {
+                       oldPreview: previewText(String(args.oldText || ""), 300),
+                       newPreview: previewText(String(args.newText || ""), 500),
+                       oldLength: String(args.oldText || "").length,
+                       newLength: String(args.newText || "").length,
+                     });
                }
             } catch(e) {
                result = `Error: ${e.message}`;
@@ -262,11 +504,18 @@ class SandboxAgent {
             this.messages.push({ role: "tool", tool_call_id: call.id, name: name, content: result });
           }
         } else if (message.content) {
+          const resultDraft = readResultDraft(resultDraftPath).trim();
+          const finalOutput = String(message.content || "").trim() || resultDraft;
           debugLog(`[Agent] Deep Synthesis complete.`);
-          onChunk(message.content);
+          onChunk(finalOutput);
           try {
               const header = `<!-- REVERSE ENGINEER BLUEPRINT - WEB/APP MODE - ${new Date().toISOString()} -->\n\n`;
-              fs.writeFileSync(blueprintPath, header + message.content, "utf8");
+              fs.writeFileSync(blueprintPath, header + finalOutput, "utf8");
+              emitDraftUpdate("finalize", resultDraft, {
+                note: `Blueprint prompt written to ${BLUEPRINT_PROMPT_FILENAME}`,
+                blueprintPath,
+                blueprintPreview: previewText(finalOutput, 1200),
+              });
           } catch(e) {}
           done = true;
         }
